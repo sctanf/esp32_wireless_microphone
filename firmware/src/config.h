@@ -4,9 +4,9 @@
 #include <driver/i2s.h>
 
 // network config
-#define WIFI_SSID <<SSID>>
-#define WIFI_PASSWORD <<PSWD>>
-#define MDNS_DOMAIN "microphone"
+#define WIFI_SSID "SSID"
+#define WIFI_PASSWORD "PASS"
+#define MDNS_DOMAIN "microphone1"
 
 // save to SPIFFS instead of SD Card?
 // #define USE_SPIFFS 1

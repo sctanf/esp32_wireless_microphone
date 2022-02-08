@@ -9,6 +9,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Starting up");
   delay(1000);
+  WiFi.hostname(MDNS_DOMAIN);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED)
   {

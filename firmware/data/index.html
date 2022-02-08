@@ -1,5 +1,7 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body {
         background-color: #010110;
@@ -280,7 +282,11 @@
         // start the visualisation
         frequencyScope.draw();
         // open a websocket connection
-        const socket = new WebSocket("ws://microphone.local/audio_stream");
+        let wsUrl = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+        wsUrl += window.location.host + window.location.pathname + 'audio_stream';
+        console.log("Connect to " + wsUrl);
+        // build url dynamic, "ws://microphone.local/audio_stream"
+        const socket = new WebSocket(wsUrl);
         socket.binaryType = "arraybuffer";
         socket.onopen = function () {
           console.log("WebSocket opened");
