@@ -58,6 +58,9 @@
         height: 100%;
         display: block;
       }
+      .text-xsmall {
+        font-size: 1rem;
+      }
     </style>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
@@ -99,14 +102,18 @@
         console.log("Will use device", deviceToUse);
         return (
           <div className="app-wrapper">
-          <div className="row" style={{display: (isStreaming ? 'none' : 'block') }}>
-            <button onClick={() => { setIsStreaming(true); startStreaming(false, null); }}>Analyze Only</button>
-            {availableDevices.length > 0 && <select value={currentDevice} onChange={(event => setCurrentDevice(event.target.value))}>
-              {availableDevices.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)}
-            </select>}
+            <div className="row" style={{display: (isStreaming ? 'none' : 'block') }}>
+              <button onClick={() => { setIsStreaming(true); startStreaming(false, null); }}>Analyze (Mobile)</button>
+              {availableDevices.length > 0 && 
+                <select value={currentDevice} onChange={(event => setCurrentDevice(event.target.value))}>
+                  {
+                    availableDevices.map((device) => <option key={device.deviceId} value={device.deviceId}>{device.label}</option>)
+                  }
+                </select>
+              }
             <button onClick={() => { setIsStreaming(true); startStreaming(true, deviceToUse) }}>Play Audio</button>
           </div>
-          <div className="row" style={{color:'white'}}>
+          <div className="row text-xsmall" style={{color:'white'}}>
             {deviceError}
           </div>
           </div>)
@@ -203,7 +210,11 @@
               this.fftNode.connect(dst);
               const audioElement = document.createElement('audio');
               audioElement.srcObject = dst.stream;
-              audioElement.setSinkId(deviceToUse.deviceId).then(console.log('success'), error => console.log(error));
+              if(audioElement.setSinkId) {
+                audioElement.setSinkId(deviceToUse.deviceId).then(console.log('success'), error => console.log(error));
+              } else {
+                console.log("audioElement.setSinkId is undefined");
+              }
               audioElement.play();
             }
           } else {
