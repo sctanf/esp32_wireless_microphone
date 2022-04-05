@@ -4,7 +4,7 @@
 
 void WebSocketTransport::begin()
 {
-  Serial.printf("Connect to http://microphone.local to try out web socket streaming");
+  Serial.println("Connect to http://microphone.local to try out web socket streaming");
   server = new AsyncWebServer(80);
   ws = new AsyncWebSocket("/audio_stream");
   // start off spiffs so we can serve the static files

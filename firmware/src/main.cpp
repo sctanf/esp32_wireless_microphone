@@ -8,56 +8,53 @@
 
 unsigned long lastCheckTime = 0;
 
+
+
+void connectWifi() {
+  Serial.println("Setup WiFi");
+  Serial.print("Connecting to ");
+  Serial.println(WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  int waitMs = 60000;
+  while (WiFi.status() != WL_CONNECTED && waitMs > 0) {
+    delay(500);
+    waitMs -= 500;
+    Serial.print(".");
+  }
+  if (waitMs <= 0) {
+    Serial.println("Restart.");
+    ESP.restart();
+  }
+  Serial.println();
+  Serial.print("WiFi connected, IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+
 void setup()
 {
   Serial.begin(115200);
   Serial.println("Starting up");
   delay(1000);
-  WiFi.hostname(MDNS_DOMAIN);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
+
   // disable WiFi sleep mode
   WiFi.setSleep(WIFI_PS_NONE);
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.print(WiFi.localIP());
-  Serial.println("");
+  WiFi.mode(WIFI_STA);
+  WiFi.hostname(MDNS_DOMAIN);
+  connectWifi();
+  
+  delay(500);
 
   // startup MDNS
   if (!MDNS.begin(MDNS_DOMAIN))
   {
     Serial.println("MDNS.begin failed");
   }
+  delay(10);
+
   Serial.println("Creating microphone");
   Application *application = new Application();
   application->begin();
-}
-
-
-
-void reconnect() {
-
-  //attempt to connect to the wifi if connection is lost
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Connecting to ");
-    Serial.println(WIFI_SSID);
-    //loop while we wait for connection
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi reconnected");
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-  }
-
 }
 
 
@@ -69,7 +66,7 @@ void loop()
   if (t - WIFI_CHECK_INTERVAL_MS >= lastCheckTime) {
     lastCheckTime = t;
     if (WiFi.status() != WL_CONNECTED) {
-      reconnect();
+      connectWifi();
     }
   }
 
