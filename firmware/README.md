@@ -16,6 +16,7 @@ https://www.youtube.com/watch?v=3g7l5bm7fZ8
 https://github.com/atomic14/esp32_wireless_microphone/tree/main/firmware
 
 ## Connections:
+```
 INMP441         ESP32 (DevKitV1-30Pins)
 GND             GND
 VDD             3.3v
@@ -23,7 +24,7 @@ SD              D21
 SCK             D26
 WS              D22
 L/R             GND
-
+```
 
 ## ESP32 I2S Audio - both DAC and MEMS
 https://github.com/atomic14/esp32_audio
