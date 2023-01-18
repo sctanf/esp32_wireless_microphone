@@ -56,17 +56,17 @@ void WebSocketTransport::begin()
   {
     if (type == WS_EVT_CONNECT)
     {
-      Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+      Serial.printf("ws[%s][%u] connect\r\n", server->url(), client->id());
       this->connected_client = client;
     }
     else if (type == WS_EVT_DISCONNECT)
     {
-      Serial.printf("ws[%s][%u] disconnect\n", server->url(), client->id());
+      Serial.printf("ws[%s][%u] disconnect\r\n", server->url(), client->id());
       this->connected_client = NULL;
     }
     else if (type == WS_EVT_ERROR)
     {
-      Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t *)arg), (char *)data);
+      Serial.printf("ws[%s][%u] error(%u): %s\r\n", server->url(), client->id(), *((uint16_t *)arg), (char *)data);
     }
   });
   server->addHandler(ws);
