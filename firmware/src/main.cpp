@@ -107,7 +107,7 @@ void setup()
 
   Serial.print("Connect to TCP socket http://");
   Serial.print(MDNS_DOMAIN);
-  Serial.println(".local:9090/ to try out TCP socket streaming");
+  Serial.println(".local:/ to try out TCP socket streaming");
 
 }
 
