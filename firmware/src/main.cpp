@@ -104,11 +104,6 @@ void setup()
   Serial.println("Creating microphone");
   Application *application = new Application();
   application->begin();
-
-  Serial.print("Connect to TCP socket http://");
-  Serial.print(MDNS_DOMAIN);
-  Serial.println(".local:/ to try out TCP socket streaming");
-
 }
 
 
