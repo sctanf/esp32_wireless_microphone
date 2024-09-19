@@ -16,7 +16,7 @@ void I2SMEMSSampler::configureI2S()
     if (m_fixSPH0645)
     {
         // FIXES for SPH0645
-        REG_SET_BIT(I2S_TIMING_REG(m_i2sPort), BIT(9));
+        REG_SET_BIT(I2S_TIMING_REG(m_i2sPort), BIT(1));
         REG_SET_BIT(I2S_CONF_REG(m_i2sPort), I2S_RX_MSB_SHIFT);
     }
 
@@ -32,8 +32,19 @@ int I2SMEMSSampler::read(int16_t *samples, int count)
     int samples_read = bytes_read / sizeof(int32_t);
     for (int i = 0; i < samples_read; i++)
     {
-        samples[i] = (raw_samples[i] & 0xFFFFFFF0) >> 11;
+        raw_samples[i] >>= 16;
+        samples[i] = (int16_t)(raw_samples[i] & 0xFFFF);
+//        samples[i] = (raw_samples[i] & 0xFFFFFFF0) >> 11;
     }
     free(raw_samples);
+    return samples_read;
+}
+
+int I2SMEMSSampler::read(int32_t *samples, int count)
+{
+    // read from i2s
+    size_t bytes_read = 0;
+    i2s_read(m_i2sPort, samples, sizeof(int32_t) * count, &bytes_read, portMAX_DELAY);
+    int samples_read = bytes_read / sizeof(int32_t);
     return samples_read;
 }
