@@ -41,8 +41,8 @@ void Application::streamer_task(void *param)
   {
     // read from the microphone
     int samples_read = 0;
-    for (int i = 0; i < 4; i++)
-      samples_read += app->input->read(&samples[samples_read], 1024);
+    for (int i = 0; i < 1; i++)
+      samples_read += app->input->read(&samples[samples_read], 256);
 
     // convert to fixed point formats
     for (int i = 0; i < samples_read; i++)
