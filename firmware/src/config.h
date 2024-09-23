@@ -16,9 +16,12 @@
 
 // I2S Microphone Settings
 #define I2S_MIC_CHANNEL I2S_CHANNEL_FMT_ONLY_RIGHT // bug in ESP_IDF, RIGHT actually means LEFT
-#define I2S_MIC_SERIAL_CLOCK GPIO_NUM_23
-#define I2S_MIC_LEFT_RIGHT_CLOCK GPIO_NUM_22
-#define I2S_MIC_SERIAL_DATA GPIO_NUM_19
+//#define I2S_MIC_SERIAL_CLOCK GPIO_NUM_23
+//#define I2S_MIC_LEFT_RIGHT_CLOCK GPIO_NUM_22
+//#define I2S_MIC_SERIAL_DATA GPIO_NUM_19
+#define I2S_MIC_SERIAL_CLOCK 2
+#define I2S_MIC_LEFT_RIGHT_CLOCK 6
+#define I2S_MIC_SERIAL_DATA 4
 
 // i2s config for reading from of I2S
 extern i2s_config_t i2s_mic_Config;
