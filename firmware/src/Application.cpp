@@ -1,7 +1,6 @@
 #include <FreeRTOS/FreeRTOS.h>
 #include "Application.h"
 #include <I2SMEMSSampler.h>
-#include <ADCSampler.h>
 #include "transports/TCPSocketTransport.h"
 #include "config.h"
 #include <cmath> // For filter calculations
