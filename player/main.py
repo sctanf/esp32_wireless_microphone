@@ -145,11 +145,11 @@ def main():
     # set up the audio out stream (to esp32)
     stream_out = p.open(
         format=pyaudio.paInt16,
-        channels=1,
+        channels=2,
         rate=44100,
         input=True,
         input_device_index=input_device_idx,
-        frames_per_buffer=256
+        frames_per_buffer=512
     )
     thread_out = threading.Thread(target=stream_audio_to_socket, args=(stream_out,))
     thread_out.daemon = True
