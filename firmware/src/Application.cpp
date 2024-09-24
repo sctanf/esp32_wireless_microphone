@@ -15,7 +15,7 @@ void Application::begin()
   this->input->start();
   this->transport2->begin();
   TaskHandle_t task_handle;
-  xTaskCreate(Application::streamer_task, "task", 65536, this, 0, &task_handle);
+  xTaskCreate(Application::streamer_task, "task", 32768, this, 0, &task_handle);
 }
 
 //#define EQ_I_0 0.73252859386304,-0.0148503406882401,-0.0037036673440813,-0.3042439147995185,0.0182185006302371
