@@ -18,6 +18,10 @@ void I2SMEMSSampler::configureI2S()
         // FIXES for SPH0645
         //REG_SET_BIT(I2S_TIMING_REG(m_i2sPort), BIT(1));
         //REG_SET_BIT(I2S_CONF_REG(m_i2sPort), I2S_RX_MSB_SHIFT);
+        // Delay by falling edge
+        REG_SET_BIT(I2S_RX_TIMING_REG(m_i2sPort), BIT(1));
+        // Force Philips mode
+        REG_SET_BIT(I2S_RX_CONF1_REG(m_i2sPort), I2S_RX_MSB_SHIFT);
     }
 
     i2s_set_pin(m_i2sPort, &m_i2sPins);
