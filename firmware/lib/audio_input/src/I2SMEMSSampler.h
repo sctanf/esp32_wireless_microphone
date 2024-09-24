@@ -19,4 +19,5 @@ public:
         bool fixSPH0645 = false);
     virtual int read(int16_t *samples, int count);
     virtual int read(int32_t *samples, int count);
+    virtual int write(int32_t *samples, int count);
 };

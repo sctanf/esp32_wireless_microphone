@@ -22,6 +22,7 @@ public:
     void start();
     virtual int read(int16_t *samples, int count) = 0;
     virtual int read(int32_t *samples, int count) = 0;
+    virtual int write(int32_t *samples, int count) = 0;
     void stop();
     int sample_rate()
     {

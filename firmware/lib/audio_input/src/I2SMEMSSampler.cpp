@@ -52,3 +52,11 @@ int I2SMEMSSampler::read(int32_t *samples, int count)
     int samples_read = bytes_read / sizeof(int32_t);
     return samples_read;
 }
+
+int I2SMEMSSampler::write(int32_t *samples, int count)
+{
+    size_t bytes_written = 0;
+    i2s_write(m_i2sPort, samples, sizeof(int32_t) * count, &bytes_written, portMAX_DELAY);
+    int samples_written = bytes_written / sizeof(int32_t);
+    return samples_written;
+}
