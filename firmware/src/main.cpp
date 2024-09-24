@@ -5,6 +5,7 @@
 #include "config.h"
 #include <EEPROM.h>
 #include "flashdata.h"
+#include "esp_wifi.h"
 
 #define WIFI_CHECK_INTERVAL_MS 60000
 
@@ -67,7 +68,7 @@ void connectWifi() {
   Serial.print("WiFi connected, IP: ");
   Serial.println(WiFi.localIP());
 
-  Serial.print("RRSI: ");
+  Serial.print("RSSI: ");
   Serial.println(WiFi.RSSI());
 }
 
@@ -88,6 +89,11 @@ void setup()
   // another issue will be visible: getting 502 (bad gateway) from the nginx when forwarding the request
   WiFi.setHostname(MDNS_DOMAIN);
   WiFi.mode(WIFI_STA);
+  
+  // Remove or modify the following line if you need more WiFi range
+  // (high transmit power can contribute to audio noise, depending on antenna)
+  esp_wifi_set_max_tx_power(84);
+
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);  
   
   connectWifi();
