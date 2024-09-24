@@ -25,9 +25,9 @@ void Application::streamer_task(void *param)
 {
   Application *app = (Application *)param;
   // now just read from the microphone and send to the clients
-  int16_t *samples_out = (int16_t *)malloc(sizeof(int16_t) * 5000);
-  int32_t *samples = (int32_t *)malloc(sizeof(int32_t) * 5000);
-//  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 5000);
+  int16_t *samples_out = (int16_t *)malloc(sizeof(int16_t) * 500);
+  int32_t *samples = (int32_t *)malloc(sizeof(int32_t) * 500);
+//  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 500);
 
 //  biquad(eq_bq_0)
 //  biquad(eq_bq_1)
