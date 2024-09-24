@@ -42,15 +42,9 @@ void TCPSocketTransport::send(void *data, size_t len)
 
 size_t TCPSocketTransport::read(void *buffer, size_t bytes)
 {
-  // get audio data from first client
-  if (clients[0] != NULL && (*clients[0]))
-  {
-    // send the samples to the client
+  if (clients[0] != NULL)
+    // get audio data from first client
     return clients[0]->read((uint8_t *)buffer, bytes);
-  }
   else
-  {
-    // client has gone away, remove it from the list
-    clients[0] = NULL;
-  }
+    return 0;
 }
