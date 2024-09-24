@@ -11,11 +11,15 @@
 void Application::begin()
 {
   this->input = new I2SMEMSSampler(I2S_NUM_0, i2s_mic_pins, i2s_mic_Config, true);
+  this->input2 = new I2SMEMSSampler(I2S_NUM_1, i2s_out_pins, i2s_out_Config);
   this->transport2 = new TCPSocketTransport();
   this->input->start();
+  this->input2->start();
   this->transport2->begin();
   TaskHandle_t task_handle;
   xTaskCreate(Application::streamer_task, "task", 32768, this, 0, &task_handle);
+  TaskHandle_t task_handle2;
+//  xTaskCreate(Application::streamer_task2, "task2", 32768, this, 0, &task_handle2);
 }
 
 //#define EQ_I_0 0.73252859386304,-0.0148503406882401,-0.0037036673440813,-0.3042439147995185,0.0182185006302371
@@ -79,5 +83,31 @@ void Application::streamer_task(void *param)
 
     // send to the transport
     app->transport2->send(samples_out, samples_read * sizeof(int16_t));
+  }
+}
+
+void Application::streamer_task2(void *param)
+{
+  Application *app = (Application *)param;
+  int16_t *samples_out2 = (int16_t *)malloc(sizeof(int16_t) * 10000);
+  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 10000);
+
+  while (true)
+  {
+    int samples_written2 = 0;
+//    int bytes_read2 = app->transport2->read(samples_out2, 10000 * sizeof(int16_t));
+    int bytes_read2 = 0;
+    int samples_read2 = bytes_read2 / sizeof(int16_t);
+    if (samples_read2 > 1)
+    {
+      printf("Read %d samples\n", samples_read2);
+      for (int i = 0; i < samples_read2; i++)
+        samples2[i] = samples_out2[i] << 16;
+//      samples_written2 = app->input2->write(&samples2[0], samples_read2);
+    }
+    else
+    {
+      vTaskDelay(5);
+    }
   }
 }
