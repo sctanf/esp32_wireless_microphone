@@ -27,18 +27,18 @@ void readDataFromEeprom() {
   // commit 512 bytes of ESP8266 flash (for "EEPROM" emulation)
   // this step actually loads the content (512 bytes) of flash into
   // a 512-byte-array cache in RAM
-  EEPROM.begin(EPROM_SIZE);
-  EEPROM.get(0, data);
+//  EEPROM.begin(EPROM_SIZE);
+//  EEPROM.get(0, data);
   // check for already saved data, if not exists, use default values
-  if (data.saved != CFG_HOLD) {
+//  if (data.saved != CFG_HOLD) {
     // default values
-    data.saved = CFG_HOLD; // arbitrary number to be different than zero
+//    data.saved = CFG_HOLD; // arbitrary number to be different than zero
     strcpy(data.ssid, WIFI_SSID);
     strcpy(data.password, WIFI_PASSWORD);
-    EEPROM.put(0, data);
-  }
-  EEPROM.commit();  
-  Serial.printf("EEPROM CFG:%d -> %s : %s \r\n", data.saved, data.ssid, data.password);
+//    EEPROM.put(0, data);
+//  }
+//  EEPROM.commit();  
+//  Serial.printf("EEPROM CFG:%d -> %s : %s \r\n", data.saved, data.ssid, data.password);
 }
 
 

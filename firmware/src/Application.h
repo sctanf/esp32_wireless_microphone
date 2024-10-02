@@ -16,5 +16,4 @@ private:
 public:
   void begin();
   static void streamer_task(void *param);
-  static void streamer_task2(void *param);
 };

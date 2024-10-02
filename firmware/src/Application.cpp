@@ -5,21 +5,45 @@
 #include "config.h"
 #include <cmath> // For filter calculations
 #include <algorithm> // For std::max
+#include "WM8978.h"
+
+#include "driver/gpio.h"
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
+#include <Arduino.h>
 
 // #include "dsp/dsp.h"
+
+WM8978 wm8978;   // create an instance of WM8978 class for the audio codec 
 
 void Application::begin()
 {
   this->input = new I2SMEMSSampler(I2S_NUM_0, i2s_mic_pins, i2s_mic_Config, true);
+#if CONFIG_IDF_TARGET_ESP32S3
   this->input2 = new I2SMEMSSampler(I2S_NUM_1, i2s_out_pins, i2s_out_Config);
+#endif
   this->transport2 = new TCPSocketTransport();
   this->input->start();
+#if CONFIG_IDF_TARGET_ESP32
+  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0_CLK_OUT1);
+  REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
+  wm8978.init();
+  wm8978.addaCfg(1,1);
+  wm8978.inputCfg(1,0,0); 
+  wm8978.outputCfg(1,0);
+  wm8978.spkVolSet(0);
+  wm8978.hpVolSet(50,50);   // headphone volume
+  wm8978.sampleRate(0);     // set sample rate to match I2S sample rate
+  wm8978.i2sCfg(2,0);
+  wm8978.micGain(20);       // set the mic gain 
+#endif
+#if CONFIG_IDF_TARGET_ESP32S3
   this->input2->start();
+#endif
   this->transport2->begin();
   TaskHandle_t task_handle;
-  xTaskCreate(Application::streamer_task, "task", 32768, this, 0, &task_handle);
-  TaskHandle_t task_handle2;
-//  xTaskCreate(Application::streamer_task2, "task2", 32768, this, 0, &task_handle2);
+//  xTaskCreate(Application::streamer_task, "task", 32768, this, 0, &task_handle);
+  xTaskCreatePinnedToCore(Application::streamer_task, "task", 32768, this, 0, &task_handle, 0);
 }
 
 //#define EQ_I_0 0.73252859386304,-0.0148503406882401,-0.0037036673440813,-0.3042439147995185,0.0182185006302371
@@ -29,10 +53,14 @@ void Application::streamer_task(void *param)
 {
   Application *app = (Application *)param;
   // now just read from the microphone and send to the clients
-  int16_t *samples_out = (int16_t *)malloc(sizeof(int16_t) * 500);
-  int32_t *samples = (int32_t *)malloc(sizeof(int32_t) * 500);
-//  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 500);
+  int16_t *samples_out = (int16_t *)malloc(sizeof(int16_t) * 2000);
+  int32_t *samples = (int32_t *)malloc(sizeof(int32_t) * 2000);
+//  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 2000);
 
+  int16_t *samples_out2 = (int16_t *)malloc(sizeof(int16_t) * 10000);
+  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 10000);
+
+  int16_t *samples_out3 = (int16_t *)malloc(sizeof(int16_t) * 10000);
 //  biquad(eq_bq_0)
 //  biquad(eq_bq_1)
 
@@ -42,6 +70,26 @@ void Application::streamer_task(void *param)
 
   while (true)
   {
+    int bytes_read2 = app->transport2->read(samples_out2, 512 * sizeof(int16_t));
+    if (bytes_read2 % 4 != 0)
+    {
+      ESP.restart();
+    }
+    int samples_read2 = bytes_read2 / sizeof(int16_t);
+    if (samples_read2 > 0)
+    {
+#if CONFIG_IDF_TARGET_ESP32
+      for (int i = 0; i < samples_read2 / 2; i++)
+        samples2[i] = (samples_out2[i * 2 + 1] << 16) + samples_out2[i * 2];
+      app->input->write(&samples2[0], samples_read2 / 2);
+#endif
+#if CONFIG_IDF_TARGET_ESP32S3
+      for (int i = 0; i < samples_read2; i++)
+        samples2[i] = samples_out2[i] << 16;
+      app->input2->write(&samples2[0], samples_read2);
+#endif
+    }
+
     // read from the microphone
     int samples_read = 0;
     for (int i = 0; i < 1; i++)
@@ -83,31 +131,24 @@ void Application::streamer_task(void *param)
 
     // send to the transport
     app->transport2->send(samples_out, samples_read * sizeof(int16_t));
-  }
-}
 
-void Application::streamer_task2(void *param)
-{
-  Application *app = (Application *)param;
-  int16_t *samples_out2 = (int16_t *)malloc(sizeof(int16_t) * 10000);
-  int32_t *samples2 = (int32_t *)malloc(sizeof(int32_t) * 10000);
+#if CONFIG_IDF_TARGET_ESP32
+    TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
+    TIMERG0.wdt_feed=1;
+    TIMERG0.wdt_wprotect=0;
 
-  while (true)
-  {
-    int samples_written2 = 0;
-//    int bytes_read2 = app->transport2->read(samples_out2, 10000 * sizeof(int16_t));
-    int bytes_read2 = 0;
-    int samples_read2 = bytes_read2 / sizeof(int16_t);
-    if (samples_read2 > 1)
-    {
-      printf("Read %d samples\n", samples_read2);
-      for (int i = 0; i < samples_read2; i++)
-        samples2[i] = samples_out2[i] << 16;
-//      samples_written2 = app->input2->write(&samples2[0], samples_read2);
-    }
-    else
-    {
-      vTaskDelay(5);
-    }
+    TIMERG1.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
+    TIMERG1.wdt_feed=1;
+    TIMERG1.wdt_wprotect=0;
+#endif
+#if CONFIG_IDF_TARGET_ESP32S3
+    TIMERG0.wdtwprotect.val=1356348065;
+    TIMERG0.wdtfeed.val=1;
+    TIMERG0.wdtwprotect.val=0;
+
+    TIMERG1.wdtwprotect.val=1356348065;
+    TIMERG1.wdtfeed.val=1;
+    TIMERG1.wdtwprotect.val=0;
+#endif
   }
 }
