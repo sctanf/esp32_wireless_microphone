@@ -43,7 +43,8 @@ def get_input_audio_device_idx(p: pyaudio.PyAudio):
     audio_device_list = []
     for i in range(p.get_device_count()):
         device = p.get_device_info_by_index(i)
-        if device["maxInputChannels"] > 0 and "capture" in device["name"].lower():
+#        if device["maxInputChannels"] > 0 and "capture" in device["name"].lower():
+        if device["maxInputChannels"] > 0:
             audio_device_list.append({"name": host_api_list[device["hostApi"]] + ": " + device["name"], "checked": True})
     questions = [
         {
@@ -64,7 +65,7 @@ def get_input_audio_device_idx(p: pyaudio.PyAudio):
 
 # this will run in a thread reading audio from the tcp socket and buffering it
 buffer = []
-buffering = False
+buffer_out = []
 sock = socket.socket()
 
 def connect():
@@ -77,6 +78,7 @@ def connect():
             break
         except:
             sleep(0.1)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
@@ -93,17 +95,6 @@ def read_audio_from_socket():
                 sock.close()
                 connect()
             else:
-#                # Convert the byte data to numpy array for processing
-#                audio_data = np.frombuffer(data, dtype=np.int16)
-#                # Remove DC offset
-#                mean = np.mean(audio_data)
-#                meanlist.append(mean)
-#                if len(meanlist) > 1000:
-#                    meanlist.pop(0)
-#                mean = np.mean(meanlist)
-#                audio_data = audio_data - mean
-#                # Convert back to bytes
-#                data = audio_data.astype(np.int16).tobytes()
                 buffer.append(data)
         except socket.timeout:
             print("Socket timeout, reconnecting...")
@@ -116,15 +107,17 @@ def stream_audio_to_socket(stream):
     global sock
     while True:
         try:
-            data = stream.read(128, exception_on_overflow=False)
+            data = stream.read(64, exception_on_overflow=False)
             sock.sendall(data)
         except socket.timeout:
-            continue
+#            print("Out Socket timeout, reconnecting...")
+            sleep(0.1)
         except Exception as e:
-            continue
+#            print(f"Out Socket error: {e}, reconnecting...")
+            sleep(0.1)
 
 def main():
-    global buffer, buffering
+    global buffer, buffering, sock
     # initialize pyaudio
     p = pyaudio.PyAudio()
     # kick off the audio buffering thread
@@ -149,11 +142,11 @@ def main():
         rate=44100,
         input=True,
         input_device_index=input_device_idx,
-        frames_per_buffer=512
+        frames_per_buffer=256
     )
     thread_out = threading.Thread(target=stream_audio_to_socket, args=(stream_out,))
     thread_out.daemon = True
-#    thread_out.start()
+    thread_out.start()
     # clear buffer
     buffer.clear()
     # this will write the buffered audio to the audio stream
