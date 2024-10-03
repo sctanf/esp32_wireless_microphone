@@ -41,9 +41,10 @@ void Application::begin()
   this->input2->start();
 #endif
   this->transport2->begin();
-  TaskHandle_t task_handle;
+//  TaskHandle_t task_handle;
 //  xTaskCreate(Application::streamer_task, "task", 32768, this, 0, &task_handle);
-  xTaskCreatePinnedToCore(Application::streamer_task, "task", 32768, this, 0, &task_handle, 0);
+//  xTaskCreatePinnedToCore(Application::streamer_task, "task", 32768, this, 0, &task_handle, 0);
+  Application::streamer_task(this);
 }
 
 //#define EQ_I_0 0.73252859386304,-0.0148503406882401,-0.0037036673440813,-0.3042439147995185,0.0182185006302371
@@ -70,7 +71,7 @@ void Application::streamer_task(void *param)
 
   while (true)
   {
-    int bytes_read2 = app->transport2->read(samples_out2, 512 * sizeof(int16_t));
+    int bytes_read2 = app->transport2->read(samples_out2, 1024 * sizeof(int16_t));
     if (bytes_read2 % 4 != 0)
     {
       ESP.restart();
@@ -93,7 +94,7 @@ void Application::streamer_task(void *param)
     // read from the microphone
     int samples_read = 0;
     for (int i = 0; i < 1; i++)
-      samples_read += app->input->read(&samples[samples_read], 256);
+      samples_read += app->input->read(&samples[samples_read], 512);
 
     // convert to fixed point formats
     for (int i = 0; i < samples_read; i++)

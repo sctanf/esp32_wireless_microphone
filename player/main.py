@@ -70,7 +70,7 @@ sock = socket.socket()
 
 def connect():
     global sock
-    sock = socket.socket()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)
     while True:
         try:
@@ -108,7 +108,7 @@ def stream_audio_to_socket(stream):
     while True:
         try:
             data = stream.read(64, exception_on_overflow=False)
-            sock.sendall(data)
+            sock.send(data)
         except socket.timeout:
 #            print("Out Socket timeout, reconnecting...")
             sleep(0.1)
