@@ -1,6 +1,9 @@
 #include <WiFiServer.h>
 #include "TCPSocketTransport.h"
 
+#include <lwip/sockets.h>
+#include <lwip/netdb.h>
+
 void TCPSocketTransport::begin()
 {
   server = new WiFiServer(9090);
